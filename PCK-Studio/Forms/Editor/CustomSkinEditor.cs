@@ -462,7 +462,7 @@ namespace PckStudio.Forms.Editor
         private void exportTemplateButton_Click(object sender, EventArgs e)
         {
             Image templateTexture = Resources.classic_template;
-            SkinAnimMask templateAnimMask = SkinAnimMask.RESOLUTION_64x64;
+            SkinAnimMask templateAnimMask = SkinAnimMask.MODERN_WIDE_MODEL;
 
             SaveFileDialog saveFileDialog = new SaveFileDialog();
             saveFileDialog.Title = "Save Template Model";
