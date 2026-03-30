@@ -247,7 +247,7 @@ namespace PckStudio.Controls
                     }
                     if (!hasDefaultModel && !hasCustomModel)
                     {
-                        MessageBox.Show(this, $"Not Model found for: {modelName}");
+                        MessageBox.Show(this, $"No Model found for: {modelName}");
                         return;
                     }
 

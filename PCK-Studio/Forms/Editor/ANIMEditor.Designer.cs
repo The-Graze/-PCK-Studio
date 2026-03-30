@@ -452,12 +452,12 @@
             this.unknownCheckBox.FontSize = MetroFramework.MetroCheckBoxSize.Medium;
             this.unknownCheckBox.Location = new System.Drawing.Point(126, 81);
             this.unknownCheckBox.Name = "unknownCheckBox";
-            this.unknownCheckBox.Size = new System.Drawing.Size(84, 19);
+            this.unknownCheckBox.Size = new System.Drawing.Size(130, 19);
             this.unknownCheckBox.TabIndex = 13;
-            this.unknownCheckBox.Text = "Unknown";
+            this.unknownCheckBox.Text = "Force Skin Effects";
             this.unknownCheckBox.Theme = MetroFramework.MetroThemeStyle.Dark;
-            this.toolTip.SetToolTip(this.unknownCheckBox, "   If you figure out what this is. Please reach out to MNL#8935 on Discord. (:   " +
-        "");
+            this.toolTip.SetToolTip(this.unknownCheckBox, "Forcefully display skin effects despite the game\'s \"Custom Skin Animation\" settin" +
+        "g");
             this.unknownCheckBox.UseSelectable = true;
             // 
             // crouchCheckBox

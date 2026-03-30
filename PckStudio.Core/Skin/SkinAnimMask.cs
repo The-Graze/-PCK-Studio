@@ -15,7 +15,7 @@ namespace PckStudio.Core.Skin
         STATIC_LEGS                 = 1 << 2,  // 0x04
         BAD_SANTA                   = 1 << 3,  // 0x08
 
-        __BIT_4                     = 1 << 4,  // 0x10 - Unused??
+        CUSTOM_ANIMATION_OVERRIDE   = 1 << 4,  // 0x10, Overrides the game's "Custom Skin Animation" setting (0x19 in Settings enum)
         SYNCED_LEGS                 = 1 << 5,  // 0x20
         SYNCED_ARMS                 = 1 << 6,  // 0x40
         STATUE_OF_LIBERTY           = 1 << 7,  // 0x80
