@@ -194,6 +194,7 @@ namespace PckStudio.Forms.Editor
             // just in case they're not the same instance
             EditorValue.Anim = renderer3D1.ANIM;
             DialogResult = DialogResult.OK;
+            Save();
         }
 
         private void exportSkinButton_Click(object sender, EventArgs e)
