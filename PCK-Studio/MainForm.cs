@@ -342,8 +342,8 @@ namespace PckStudio
 			var pack = new PckFile(3);
 
             PckAsset zeroAsset = pack.CreateNewAsset("0", PckAssetType.InfoFile);
-			zeroAsset.AddProperty("PACKID", packId);
-			zeroAsset.AddProperty("PACKVERSION", packVersion);
+			zeroAsset.AddParameter("PACKID", packId);
+			zeroAsset.AddParameter("PACKVERSION", packVersion);
 
 			var locFile = new LOCFile();
 			locFile.InitializeDefault(packName);
@@ -369,8 +369,8 @@ namespace PckStudio
 			comparisonAsset.SetTexture(Core.Properties.Resources.Comparison);
 
             PckAsset texturepackInfoAsset = pack.CreateNewAsset($"{res}/{res}Info.pck", PckAssetType.TexturePackInfoFile);
-			texturepackInfoAsset.AddProperty("PACKID", "0");
-			texturepackInfoAsset.AddProperty("DATAPATH", $"{res}Data.pck");
+			texturepackInfoAsset.AddParameter("PACKID", "0");
+			texturepackInfoAsset.AddParameter("DATAPATH", $"{res}Data.pck");
 
 			texturepackInfoAsset.SetData(new PckFileWriter(infoPCK, OMI.ByteOrder.BigEndian));
 

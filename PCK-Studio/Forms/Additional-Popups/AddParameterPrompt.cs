@@ -4,24 +4,24 @@ using System.Windows.Forms;
 
 namespace PckStudio.Forms.Additional_Popups
 {
-    public partial class AddPropertyPrompt : MetroFramework.Forms.MetroForm
+    public partial class AddParameterPrompt : MetroFramework.Forms.MetroForm
     {
-        public KeyValuePair<string, string> Property => new KeyValuePair<string, string>(keyTextBox.Text, valueTextBox.Text);
+        public KeyValuePair<string, string> Parameter => new KeyValuePair<string, string>(keyTextBox.Text, valueTextBox.Text);
 
-        public AddPropertyPrompt(KeyValuePair<string, string> property)
-            : this(property.Key, property.Value)
+        public AddParameterPrompt(KeyValuePair<string, string> parameter)
+            : this(parameter.Key, parameter.Value)
         {
 
         }
 
-        public AddPropertyPrompt(string name, string value)
+        public AddParameterPrompt(string name, string value)
         {
             InitializeComponent();
             keyTextBox.Text = name;
             valueTextBox.Text = value;
         }
 
-        public AddPropertyPrompt()
+        public AddParameterPrompt()
         {
             InitializeComponent();
         }

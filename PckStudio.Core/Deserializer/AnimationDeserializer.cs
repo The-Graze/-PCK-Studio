@@ -24,7 +24,7 @@ namespace PckStudio.Core.Deserializer
             {
                 Image texture = asset.GetTexture();
                 IEnumerable<Image> frameTextures = texture.Split(ImageLayoutDirection.Vertical);
-                string animString = asset.GetProperty("ANIM");
+                string animString = asset.GetParameter("ANIM");
                 bool animStringIsEmpty = string.IsNullOrEmpty(animString);
                 Animation animation = new Animation(frameTextures, animStringIsEmpty);
                 if (!animStringIsEmpty)

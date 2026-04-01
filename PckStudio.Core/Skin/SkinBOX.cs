@@ -140,7 +140,7 @@ namespace PckStudio.Core.Skin
 
         public static bool IsOverlayPart(string type) => OverlayTypes.Contains(type);
 
-        public KeyValuePair<string, string> ToProperty()
+        public KeyValuePair<string, string> ToParameter()
 		{
 			return new KeyValuePair<string, string>("BOX", ToString());
 		}

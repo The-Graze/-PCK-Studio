@@ -135,7 +135,7 @@
     <value>2</value>
   </data>
   <data name="label1.Text" xml:space="preserve">
-    <value>Entry</value>
+    <value>Type</value>
   </data>
   <data name="&gt;&gt;label1.Name" xml:space="preserve">
     <value>label1</value>
@@ -2771,7 +2771,7 @@
     <value>CenterParent</value>
   </data>
   <data name="&gt;&gt;$this.Name" xml:space="preserve">
-    <value>AddPropertyPrompt</value>
+    <value>AddParameterPrompt</value>
   </data>
   <data name="&gt;&gt;$this.Type" xml:space="preserve">
     <value>MetroFramework.Forms.MetroForm, MetroFramework, Version=1.4.0.0, Culture=neutral, PublicKeyToken=5f91a84759bf584a</value>

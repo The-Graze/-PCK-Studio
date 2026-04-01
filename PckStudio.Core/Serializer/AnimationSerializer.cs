@@ -36,7 +36,7 @@ namespace PckStudio.Core.Serializer
         public void Serialize(Animation animation, ref PckAsset asset)
         {
             string anim = SerializeAnim(animation);
-            asset.SetProperty("ANIM", anim);
+            asset.SetParameter("ANIM", anim);
             Image texture = SerializeTexture(animation);
             asset.SetTexture(texture);
         }

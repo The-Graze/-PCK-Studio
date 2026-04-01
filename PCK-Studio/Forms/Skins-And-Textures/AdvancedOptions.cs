@@ -29,7 +29,7 @@ namespace PckStudio.Popups
             InitializeComponent();
             _pckFile = pckFile;
             propertyTreeview.Nodes.Clear();
-            propertyTreeview.Nodes.AddRange(_pckFile.GetPropertyList().Select(s => new TreeNode(s)).ToArray());
+            propertyTreeview.Nodes.AddRange(_pckFile.GetParameterList().Select(s => new TreeNode(s)).ToArray());
         }
 
         private void applyButton_Click(object sender, EventArgs e)
@@ -64,7 +64,7 @@ namespace PckStudio.Popups
 
                 if (index == -1 || (Enum.IsDefined(typeof(PckAssetType), index) && (int)asset.Type == index))
                 {
-                    asset.AddProperty(propertyKeyTextBox.Text, propertyValueTextBox.Text);
+                    asset.AddParameter(propertyKeyTextBox.Text, propertyValueTextBox.Text);
                 }
             }
 

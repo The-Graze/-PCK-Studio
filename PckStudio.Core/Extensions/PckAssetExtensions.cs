@@ -83,11 +83,11 @@ namespace PckStudio.Core.Extensions
 
             int skinId = asset.GetSkinId();
 
-            string name = asset.GetProperty("DISPLAYNAME");
+            string name = asset.GetParameter("DISPLAYNAME");
             Image texture = asset.GetTexture();
-            SkinANIM anim = asset.GetProperty("ANIM", SkinANIM.FromString);
-            IEnumerable<SkinBOX> boxes = asset.GetMultipleProperties("BOX").Select(kv => SkinBOX.FromString(kv.Value));
-            IEnumerable<SkinPartOffset> offsets = asset.GetMultipleProperties("OFFSET").Select(kv => SkinPartOffset.FromString(kv.Value));
+            SkinANIM anim = asset.GetParameter("ANIM", SkinANIM.FromString);
+            IEnumerable<SkinBOX> boxes = asset.GetMultipleParameters("BOX").Select(kv => SkinBOX.FromString(kv.Value));
+            IEnumerable<SkinPartOffset> offsets = asset.GetMultipleParameters("OFFSET").Select(kv => SkinPartOffset.FromString(kv.Value));
             return new Skin.Skin(name, skinId, texture, anim, boxes, offsets);
         }
 
@@ -103,46 +103,46 @@ namespace PckStudio.Core.Extensions
             // TODO: keep filepath 
             asset.Filename = $"dlcskin{skinId}.png";
 
-            asset.SetProperty("DISPLAYNAME", skin.MetaData.Name);
+            asset.SetParameter("DISPLAYNAME", skin.MetaData.Name);
 
             if (localizationFile is not null)
             {
                 string skinLocKey = $"IDS_dlcskin{skinId}_DISPLAYNAME";
-                asset.SetProperty("DISPLAYNAMEID", skinLocKey);
+                asset.SetParameter("DISPLAYNAMEID", skinLocKey);
                 localizationFile.SetLocEntry(skinLocKey, skin.MetaData.Name);
             }
 
             if (!string.IsNullOrEmpty(skin.MetaData.Theme))
             {
-                asset.SetProperty("THEMENAME", skin.MetaData.Theme);
+                asset.SetParameter("THEMENAME", skin.MetaData.Theme);
 
                 if (localizationFile is not null)
                 {
                     string skinThemeLocKey = $"IDS_dlcskin{skinId}_THEMENAME";
-                    asset.SetProperty("THEMENAMEID", skinThemeLocKey);
+                    asset.SetParameter("THEMENAMEID", skinThemeLocKey);
                     localizationFile.SetLocEntry(skinThemeLocKey, skin.MetaData.Theme);
                 }
             }
 
             if (skin.HasCape)
             {
-                asset.SetProperty("CAPEPATH", $"dlccape{skinId}.png");
+                asset.SetParameter("CAPEPATH", $"dlccape{skinId}.png");
             }
 
-            asset.SetProperty("ANIM", skin.Anim.ToString());
-            asset.SetProperty("GAME_FLAGS", "0x18");
-            asset.SetProperty("FREE", "1");
+            asset.SetParameter("ANIM", skin.Anim.ToString());
+            asset.SetParameter("GAME_FLAGS", "0x18");
+            asset.SetParameter("FREE", "1");
 
-            asset.RemoveProperties("BOX");
-            asset.RemoveProperties("OFFSET");
+            asset.RemoveParameters("BOX");
+            asset.RemoveParameters("OFFSET");
 
             foreach (SkinBOX box in skin.Model.AdditionalBoxes)
             {
-                asset.AddProperty(box.ToProperty());
+                asset.AddParameter(box.ToParameter());
             }
             foreach (SkinPartOffset offset in skin.Model.PartOffsets)
             {
-                asset.AddProperty(offset.ToProperty());
+                asset.AddParameter(offset.ToParameter());
             }
         }
 
@@ -205,7 +205,7 @@ namespace PckStudio.Core.Extensions
             return asset.Filename.Remove(asset.Filename.Length - (MipMap.Length + 1) - ext.Length) + ext;
         }
 
-        public static void DeserializeProperties(this PckAsset asset, IEnumerable<string> serializedData)
+        public static void DeserializeParameters(this PckAsset asset, IEnumerable<string> serializedData)
         {
             IEnumerable<KeyValuePair<string, string>> lines = serializedData
                 .Select(line => line.Split([' '], 2))
@@ -213,14 +213,14 @@ namespace PckStudio.Core.Extensions
                 .Select(keyValue => new KeyValuePair<string, string>(keyValue[0].Replace(":", ""), keyValue[1]));
             foreach (KeyValuePair<string, string> kv in lines)
             {
-                asset.AddProperty(kv);
+                asset.AddParameter(kv);
             }
         }
 
-        public static IEnumerable<string> SerializeProperties(this PckAsset asset, string seperater = ":")
+        public static IEnumerable<string> SerializeParameters(this PckAsset asset, string separator = ":")
         {
-            IReadOnlyList<KeyValuePair<string, string>> properties = asset.GetProperties();
-            return properties.Select(property => property.Key + seperater + property.Value);
+            IReadOnlyList<KeyValuePair<string, string>> parameters = asset.GetParameters();
+            return parameters.Select(parameter => parameter.Key + separator + parameter.Value);
         }
     }
 }

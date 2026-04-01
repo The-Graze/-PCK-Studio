@@ -316,11 +316,11 @@
     <Compile Include="Forms\Additional-Popups\ItemSelectionPopUp.Designer.cs">
       <DependentUpon>ItemSelectionPopUp.cs</DependentUpon>
     </Compile>
-    <Compile Include="Forms\Additional-Popups\AddPropertyPrompt.cs">
+    <Compile Include="Forms\Additional-Popups\AddParameterPrompt.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Forms\Additional-Popups\AddPropertyPrompt.Designer.cs">
-      <DependentUpon>AddPropertyPrompt.cs</DependentUpon>
+    <Compile Include="Forms\Additional-Popups\AddParameterPrompt.Designer.cs">
+      <DependentUpon>AddParameterPrompt.cs</DependentUpon>
     </Compile>
     <Compile Include="Forms\Additional-Popups\AddSkinPrompt.cs">
       <SubType>Form</SubType>
@@ -466,11 +466,11 @@
     <EmbeddedResource Include="Forms\Additional-Popups\ItemSelectionPopUp.resx">
       <DependentUpon>ItemSelectionPopUp.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Additional-Popups\AddPropertyPrompt.ja.resx">
-      <DependentUpon>AddPropertyPrompt.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\Additional-Popups\AddParameterPrompt.ja.resx">
+      <DependentUpon>AddParameterPrompt.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Forms\Additional-Popups\AddPropertyPrompt.resx">
-      <DependentUpon>AddPropertyPrompt.cs</DependentUpon>
+    <EmbeddedResource Include="Forms\Additional-Popups\AddParameterPrompt.resx">
+      <DependentUpon>AddParameterPrompt.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Forms\Additional-Popups\AddSkinPrompt.ja.resx">
       <DependentUpon>AddSkinPrompt.cs</DependentUpon>

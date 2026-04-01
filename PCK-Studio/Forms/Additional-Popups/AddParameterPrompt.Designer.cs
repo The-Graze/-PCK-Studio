@@ -1,6 +1,6 @@
 ﻿namespace PckStudio.Forms.Additional_Popups
 {
-    partial class AddPropertyPrompt
+    partial class AddParameterPrompt
     {
         /// <summary>
         /// Required designer variable.
@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             System.Windows.Forms.Label label1;
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AddPropertyPrompt));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AddParameterPrompt));
             System.Windows.Forms.Label label2;
             this.keyTextBox = new System.Windows.Forms.TextBox();
             this.valueTextBox = new System.Windows.Forms.TextBox();
@@ -74,10 +74,12 @@
             this.saveButton.UseVisualStyleBackColor = true;
             this.saveButton.Click += new System.EventHandler(this.saveButton_Click);
             // 
-            // AddPropertyPrompt
+            // AddParameterPrompt
             // 
             resources.ApplyResources(this, "$this");
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
+            this.BackLocation = MetroFramework.Forms.BackLocation.TopLeft;
+            this.BorderStyle = MetroFramework.Forms.MetroFormBorderStyle.None;
             this.Controls.Add(this.saveButton);
             this.Controls.Add(label2);
             this.Controls.Add(label1);
@@ -85,7 +87,7 @@
             this.Controls.Add(this.keyTextBox);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "AddPropertyPrompt";
+            this.Name = "AddParameterPrompt";
             this.Resizable = false;
             this.ShadowType = MetroFramework.Forms.MetroFormShadowType.DropShadow;
             this.Style = MetroFramework.MetroColorStyle.Black;

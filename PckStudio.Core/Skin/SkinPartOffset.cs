@@ -72,7 +72,7 @@ namespace PckStudio.Core.Skin
             return new SkinPartOffset(type, value);
         }
 
-        public KeyValuePair<string, string> ToProperty()
+        public KeyValuePair<string, string> ToParameter()
         {
             string value = $"{Type} Y {Value}";
             return new KeyValuePair<string, string>("OFFSET", value.Replace(',', '.'));

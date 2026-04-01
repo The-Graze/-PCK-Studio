@@ -435,9 +435,9 @@ namespace PckStudio.Controls
         private void HandleSkinFile(PckAsset asset)
         {
             Skin skin = asset.GetSkin();
-            if (asset.HasProperty("CAPEPATH"))
+            if (asset.HasParameter("CAPEPATH"))
             {
-                string capeAssetPath = asset.GetProperty("CAPEPATH");
+                string capeAssetPath = asset.GetParameter("CAPEPATH");
                 if (EditorValue.File.TryGetAsset(capeAssetPath, PckAssetType.CapeFile, out PckAsset capeAsset))
                 {
                     skin.CapeTexture = capeAsset.GetTexture();
@@ -454,9 +454,9 @@ namespace PckStudio.Controls
             using CustomSkinEditor skinEditor = new CustomSkinEditor(skin, saveContext, EditorValue.File.xmlVersion);
             if (skinEditor.ShowDialog() == DialogResult.OK)
             {
-                entryDataTextBox.Text = entryTypeTextBox.Text = string.Empty;
+                parameterValueTextBox.Text = ParameterTypeTextBox.Text = string.Empty;
                 _wasModified = true;
-                ReloadMetaTreeView();
+                ReloadParameterTreeView();
             }
         }
 
@@ -532,7 +532,7 @@ namespace PckStudio.Controls
         {
             if (EditorValue.File.TryGetAsset("0", PckAssetType.InfoFile, out PckAsset asset))
             {
-                asset.RemoveProperties("LOCK");
+                asset.RemoveParameters("LOCK");
             }
         }
 
@@ -591,7 +591,7 @@ namespace PckStudio.Controls
             // In case the Rename function was just used and the selected node name no longer matches the file name
             string selectedNodeText = treeViewMain.SelectedNode is TreeNode node ? node.FullPath : string.Empty;
             previewPictureBox.Image = Resources.NoImageFound;
-            treeMeta.Nodes.Clear();
+            treeParameters.Nodes.Clear();
             treeViewMain.Nodes.Clear();
             BuildPckTreeView(treeViewMain.Nodes, EditorValue.File);
             treeViewMain.Sort();
@@ -682,15 +682,15 @@ namespace PckStudio.Controls
             return false;
         }
 
-        private void ReloadMetaTreeView()
+        private void ReloadParameterTreeView()
         {
-            treeMeta.Nodes.Clear();
+            treeParameters.Nodes.Clear();
             if (treeViewMain.SelectedNode is TreeNode node &&
                 node.Tag is PckAsset asset)
             {
-                foreach (KeyValuePair<string, string> property in asset.GetProperties())
+                foreach (KeyValuePair<string, string> parameter in asset.GetParameters())
                 {
-                    treeMeta.Nodes.Add(CreateNode(property.Key, property));
+                    treeParameters.Nodes.Add(CreateNode(parameter.Key, parameter));
                 }
             }
         }
@@ -818,7 +818,7 @@ namespace PckStudio.Controls
                                 {
 
                                 }
-                                mfNew.AddProperty(key, value);
+                                mfNew.AddParameter(key, value);
                             }
                             _wasModified = true;
                         }
@@ -880,9 +880,9 @@ namespace PckStudio.Controls
 
         private void treeViewMain_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            ReloadMetaTreeView();
+            ReloadParameterTreeView();
 
-            entryTypeTextBox.Text = entryDataTextBox.Text = labelImageSize.Text = string.Empty;
+            ParameterTypeTextBox.Text = parameterValueTextBox.Text = labelImageSize.Text = string.Empty;
             buttonEdit.Visible = false;
 
             previewPictureBox.Image = Resources.NoImageFound;
@@ -1178,10 +1178,10 @@ namespace PckStudio.Controls
                     continue;
                 }
                 PckAsset importedAsset = EditorValue.File.CreateNewAsset(assetPath, assetType, () => File.ReadAllBytes(filepath));
-                string propertyFile = filepath + ".txt";
-                if (File.Exists(propertyFile))
+                string parameterFile = filepath + ".txt";
+                if (File.Exists(parameterFile))
                 {
-                    importedAsset.DeserializeProperties(File.ReadAllLines(propertyFile));
+                    importedAsset.DeserializeParameters(File.ReadAllLines(parameterFile));
                 }
                 addedCount++;
             }
@@ -1287,7 +1287,7 @@ namespace PckStudio.Controls
                 PckAsset asset = EditorValue.File.CreateNewAsset(animationFilepath, PckAssetType.TextureFile);
                 asset.SetSerializedData(newAnimation, AnimationSerializer.DefaultSerializer);
                 BuildMainTreeView();
-                ReloadMetaTreeView();
+                ReloadParameterTreeView();
             }
         }
 
@@ -1405,7 +1405,7 @@ namespace PckStudio.Controls
                             string[] param = property.Split(':');
                             if (param.Length < 2)
                                 continue;
-                            newFile.AddProperty(param[0], param[1]);
+                            newFile.AddParameter(param[0], param[1]);
                             //switch (param[0])
                             //{
                             //    case "DISPLAYNAMEID":
@@ -1525,7 +1525,7 @@ namespace PckStudio.Controls
                     $"Asset path: {asset.Filename}" +
                     $"\nAsset type: {(int)asset.Type} ({asset.Type})" +
                     $"\nAsset size: {asset.Size}" + 
-                    $"\nProperties count: {asset.PropertyCount}"
+                    $"\nParameter count: {asset.ParameterCount}"
                     , Path.GetFileName(asset.Filename) + " Asset info");
             }
         }
@@ -1535,12 +1535,12 @@ namespace PckStudio.Controls
             if (treeViewMain.SelectedNode.TryGetTagData(out PckAsset asset) &&
                 asset.Type == PckAssetType.SkinFile)
             {
-                foreach (KeyValuePair<string, string> p in asset.GetProperties().ToList())
+                foreach (KeyValuePair<string, string> p in asset.GetParameters().ToList())
                 {
                     if (p.Key == "BOX" || p.Key == "OFFSET")
-                        asset.SetProperty(asset.GetPropertyIndex(p), new KeyValuePair<string, string>(p.Key, p.Value.Replace(',', '.')));
+                        asset.SetParameter(asset.GetParameterIndex(p), new KeyValuePair<string, string>(p.Key, p.Value.Replace(',', '.')));
                 }
-                ReloadMetaTreeView();
+                ReloadParameterTreeView();
                 _wasModified = true;
             }
         }
@@ -1616,9 +1616,9 @@ namespace PckStudio.Controls
         private void extractFile(string outFilePath, PckAsset asset)
         {
             File.WriteAllBytes(outFilePath, asset.Data);
-            if (asset.PropertyCount > 0)
+            if (asset.ParameterCount > 0)
             {
-                File.WriteAllLines($"{outFilePath}.txt", asset.SerializeProperties());
+                File.WriteAllLines($"{outFilePath}.txt", asset.SerializeParameters());
             }
         }
 
@@ -1640,9 +1640,9 @@ namespace PckStudio.Controls
                     TreeNode newNode = new TreeNode();
                     newNode.Text = Path.GetFileName(diag.NewText);
                     var newFile = new PckAsset(diag.NewText, asset.Type);
-                    foreach (KeyValuePair<string, string> property in asset.GetProperties())
+                    foreach (KeyValuePair<string, string> parameter in asset.GetParameters())
                     {
-                        newFile.AddProperty(property);
+                        newFile.AddParameter(parameter);
                     }
                     newFile.SetData(asset.Data);
                     newFile.Filename = diag.NewText;
@@ -1768,9 +1768,9 @@ namespace PckStudio.Controls
             {
                 if (TryGetLocFile(out LOCFile locFile))
                 {
-                    if (asset.TryGetProperty("THEMENAMEID", out string value))
+                    if (asset.TryGetParameter("THEMENAMEID", out string value))
                         locFile.RemoveLocKey(value);
-                    if (asset.TryGetProperty("DISPLAYNAMEID", out value))
+                    if (asset.TryGetParameter("DISPLAYNAMEID", out value))
                         locFile.RemoveLocKey(value);
                     TrySetLocFile(locFile);
                 }
@@ -1804,12 +1804,12 @@ namespace PckStudio.Controls
             }
         }
 
-        private void treeMeta_AfterSelect(object sender, TreeViewEventArgs e)
+        private void treeParameter_AfterSelect(object sender, TreeViewEventArgs e)
         {
-            if (e.Node is TreeNode t && t.Tag is KeyValuePair<string, string> property)
+            if (e.Node is TreeNode t && t.Tag is KeyValuePair<string, string> parameter)
             {
-                entryTypeTextBox.Text = property.Key;
-                entryDataTextBox.Text = property.Value;
+                ParameterTypeTextBox.Text = parameter.Key;
+                parameterValueTextBox.Text = parameter.Value;
             }
         }
 
@@ -1834,41 +1834,41 @@ namespace PckStudio.Controls
             e.CancelEdit = true;
         }
 
-        private void editAllEntriesToolStripMenuItem_Click(object sender, EventArgs e)
+        private void editAllParametersToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (treeViewMain.SelectedNode.TryGetTagData(out PckAsset asset))
             {
-                IEnumerable<string> props = asset.SerializeProperties(seperater: " ");
-                using (var input = new MultiTextPrompt(props))
+                IEnumerable<string> parameters = asset.SerializeParameters(separator: " ");
+                using (var input = new MultiTextPrompt(parameters))
                 {
                     if (input.ShowDialog(this) == DialogResult.OK)
                     {
-                        asset.ClearProperties();
-                        asset.DeserializeProperties(input.TextOutput);
-                        ReloadMetaTreeView();
+                        asset.ClearParameters();
+                        asset.DeserializeParameters(input.TextOutput);
+                        ReloadParameterTreeView();
                         _wasModified = true;
                     }
                 }
             }
         }
 
-        private void treeMeta_DoubleClick(object sender, EventArgs e)
+        private void treeParameter_DoubleClick(object sender, EventArgs e)
         {
-            if (treeMeta.SelectedNode is TreeNode subnode && subnode.Tag is KeyValuePair<string, string> property &&
+            if (treeParameters.SelectedNode is TreeNode subnode && subnode.Tag is KeyValuePair<string, string> parameter &&
                 treeViewMain.SelectedNode is TreeNode node && node.Tag is PckAsset asset)
             {
-                if (asset.HasProperty(property.Key))
+                if (asset.HasParameter(parameter.Key))
                 {
-                    switch (property.Key)
+                    switch (parameter.Key)
                     {
                         case "ANIM" when asset.Type == PckAssetType.SkinFile:
                             try
                             {
-                                using ANIMEditor diag = new ANIMEditor(SkinANIM.FromString(property.Value));
+                                using ANIMEditor diag = new ANIMEditor(SkinANIM.FromString(parameter.Value));
                                 if (diag.ShowDialog(this) == DialogResult.OK)
                                 {
-                                    asset.SetProperty(asset.GetPropertyIndex(property), new KeyValuePair<string, string>("ANIM", diag.ResultAnim.ToString()));
-                                    ReloadMetaTreeView();
+                                    asset.SetParameter(asset.GetParameterIndex(parameter), new KeyValuePair<string, string>("ANIM", diag.ResultAnim.ToString()));
+                                    ReloadParameterTreeView();
                                     _wasModified = true;
                                 }
                                 return;
@@ -1876,7 +1876,7 @@ namespace PckStudio.Controls
                             catch (Exception ex)
                             {
                                 Debug.WriteLine(ex.Message);
-                                Trace.WriteLine("Invalid ANIM value: " + property.Value);
+                                Trace.WriteLine("Invalid ANIM value: " + parameter.Value);
                                 MessageBox.Show(this, "Failed to parse ANIM value, aborting to normal functionality. Please make sure the value only includes hexadecimal characters (0-9,A-F) and has no more than 8 characters.");
                             }
                             break;
@@ -1884,11 +1884,11 @@ namespace PckStudio.Controls
                         case "BOX" when asset.Type == PckAssetType.SkinFile:
                             try
                             {
-                                using BoxEditor diag = new BoxEditor(property.Value, EditorValue.File.xmlVersion);
+                                using BoxEditor diag = new BoxEditor(parameter.Value, EditorValue.File.xmlVersion);
                                 if (diag.ShowDialog(this) == DialogResult.OK)
                                 {
-                                    asset.SetProperty(asset.GetPropertyIndex(property), new KeyValuePair<string, string>("BOX", diag.Result.ToString()));
-                                    ReloadMetaTreeView();
+                                    asset.SetParameter(asset.GetParameterIndex(parameter), new KeyValuePair<string, string>("BOX", diag.Result.ToString()));
+                                    ReloadParameterTreeView();
                                     _wasModified = true;
                                 }
                                 return;
@@ -1896,7 +1896,7 @@ namespace PckStudio.Controls
                             catch (Exception ex)
                             {
                                 Debug.WriteLine(ex.Message);
-                                Trace.WriteLine("Invalid BOX value: " + property.Value);
+                                Trace.WriteLine("Invalid BOX value: " + parameter.Value);
                                 MessageBox.Show(this, "Failed to parse BOX value, aborting to normal functionality.");
                             }
                             break;
@@ -1906,12 +1906,12 @@ namespace PckStudio.Controls
 
                     }
 
-                    using (AddPropertyPrompt addProperty = new AddPropertyPrompt(property))
+                    using (AddParameterPrompt addParameter = new AddParameterPrompt(parameter))
                     {
-                        if (addProperty.ShowDialog(this) == DialogResult.OK)
+                        if (addParameter.ShowDialog(this) == DialogResult.OK)
                         {
-                            asset.SetProperty(asset.GetPropertyIndex(property), addProperty.Property);
-                            ReloadMetaTreeView();
+                            asset.SetParameter(asset.GetParameterIndex(parameter), addParameter.Parameter);
+                            ReloadParameterTreeView();
                             _wasModified = true;
                         }
                     }
@@ -1919,77 +1919,77 @@ namespace PckStudio.Controls
             }
         }
 
-        private void treeMeta_KeyDown(object sender, KeyEventArgs e)
+        private void treeParameter_KeyDown(object sender, KeyEventArgs e)
         {
             if (e.KeyData == Keys.Delete)
-                deleteEntryToolStripMenuItem_Click(sender, e);
+                deleteParameterToolStripMenuItem_Click(sender, e);
         }
 
-        private void addMultipleEntriesToolStripMenuItem1_Click(object sender, EventArgs e)
+        private void addMultipleParametersToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             if (treeViewMain.SelectedNode.TryGetTagData(out PckAsset asset))
             {
                 using var input = new MultiTextPrompt();
                 if (input.ShowDialog(this) == DialogResult.OK)
                 {
-                    asset.DeserializeProperties(input.TextOutput);
-                    ReloadMetaTreeView();
+                    asset.DeserializeParameters(input.TextOutput);
+                    ReloadParameterTreeView();
                     _wasModified = true;
                 }
             }
         }
 
-        private void addBOXEntryToolStripMenuItem1_Click(object sender, EventArgs e)
+        private void addBOXParameterToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             if (treeViewMain.SelectedNode is TreeNode t && t.Tag is PckAsset asset)
             {
                 using BoxEditor diag = new BoxEditor(SkinBOX.DefaultHead, EditorValue.File.xmlVersion);
                 if (diag.ShowDialog(this) == DialogResult.OK)
                 {
-                    asset.AddProperty("BOX", diag.Result);
-                    ReloadMetaTreeView();
+                    asset.AddParameter("BOX", diag.Result);
+                    ReloadParameterTreeView();
                     _wasModified = true;
                 }
                 return;
             }
         }
 
-        private void addANIMEntryToolStripMenuItem1_Click(object sender, EventArgs e)
+        private void addSkinANIMParameterToolStripMenuItem1_Click(object sender, EventArgs e)
         {
             if (treeViewMain.SelectedNode.TryGetTagData(out PckAsset asset))
             {
                 using ANIMEditor diag = new ANIMEditor(SkinANIM.Empty);
                 if (diag.ShowDialog(this) == DialogResult.OK)
                 {
-                    asset.AddProperty("ANIM", diag.ResultAnim);
-                    ReloadMetaTreeView();
+                    asset.AddParameter("ANIM", diag.ResultAnim);
+                    ReloadParameterTreeView();
                     _wasModified = true;
                 }
                 return;
             }
         }
 
-        private void deleteEntryToolStripMenuItem_Click(object sender, EventArgs e)
+        private void deleteParameterToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            if (treeMeta.SelectedNode is TreeNode t && t.Tag is KeyValuePair<string, string> property &&
+            if (treeParameters.SelectedNode is TreeNode t && t.Tag is KeyValuePair<string, string> parameter &&
                 treeViewMain.SelectedNode is TreeNode main && main.Tag is PckAsset asset &&
-                asset.RemoveProperty(property))
+                asset.RemoveParameter(parameter))
             {
-                treeMeta.SelectedNode.Remove();
+                treeParameters.SelectedNode.Remove();
                 _wasModified = true;
             }
         }
 
-        private void addEntryToolStripMenuItem_Click(object sender, EventArgs e)
+        private void addParameterToolStripMenuItem_Click(object sender, EventArgs e)
         {
             if (treeViewMain.SelectedNode is TreeNode t &&
                 t.Tag is PckAsset asset)
             {
-                using AddPropertyPrompt addProperty = new AddPropertyPrompt();
-                if (addProperty.ShowDialog(this) == DialogResult.OK)
+                using AddParameterPrompt addParameter = new AddParameterPrompt();
+                if (addParameter.ShowDialog(this) == DialogResult.OK)
                 {
-                    asset.AddProperty(addProperty.Property);
-                    ReloadMetaTreeView();
+                    asset.AddParameter(addParameter.Parameter);
+                    ReloadParameterTreeView();
                     _wasModified = true;
                 }
             }
