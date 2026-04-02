@@ -2076,20 +2076,48 @@ namespace PckStudio.Controls
             UpdateRichPresence();
         }
 
-        private void SetEndianess(OMI.ByteOrder endianness)
-        {
-            LittleEndianCheckBox.Checked = endianness == OMI.ByteOrder.LittleEndian;
-        }
-
-        private OMI.ByteOrder GetEndianess()
-        {
-            return LittleEndianCheckBox.Checked ? OMI.ByteOrder.LittleEndian : OMI.ByteOrder.BigEndian;
-        }
-
         private void buttonEdit_Click(object sender, EventArgs e)
         {
             treeViewMain_DoubleClick(sender, e);
         }
+
+        private void SetPckXMLVersion(int xmlVersion)
+        {
+            bool isLittleEndian = LittleEndianCheckBox.Checked;
+
+            try
+            {
+                if (treeViewMain.SelectedNode.Tag is PckAsset asset && (asset.Type is PckAssetType.AudioFile || asset.Type is PckAssetType.SkinDataFile || asset.Type is PckAssetType.TexturePackInfoFile))
+                {
+                    OMI.ByteOrder endianness = isLittleEndian ? OMI.ByteOrder.LittleEndian : OMI.ByteOrder.BigEndian;
+                    IDataFormatReader reader = new PckFileReader(endianness);
+                    object pck = reader.FromStream(new MemoryStream(asset.Data));
+
+                    IDataFormatWriter writer = new PckFileWriter((PckFile)pck, endianness, xmlVersion); // write the pck file as given xmlversion
+                    asset.SetData(writer);
+                    _wasModified = true;
+                    MessageBox.Show($"\"{asset.Filename}\" successfully set to BOX version {xmlVersion}", "Set PCK BOX Version");
+                }
+            }
+            catch (OverflowException)
+            {
+                MessageBox.Show(this, $"\"PCK cannot be set because the file endianness is not {(isLittleEndian ? "little" : "big")}.", "Unable to set PCK BOX Version");
+                return;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(this, ex.Message, "Not a valid PCK file");
+                return;
+            }
+        }
+
+        private void setBoxVersion0ToolStripMenuItem_Click(object sender, EventArgs e) => SetPckXMLVersion(0);
+
+        private void setBoxVersion1ToolStripMenuItem_Click(object sender, EventArgs e) => SetPckXMLVersion(1);
+
+        private void setBoxVersion2ToolStripMenuItem_Click(object sender, EventArgs e) => SetPckXMLVersion(2);
+
+        private void setBoxVersion3ToolStripMenuItem_Click(object sender, EventArgs e) => SetPckXMLVersion(3);
 
         private void SetPckEndianness(OMI.ByteOrder endianness)
         {
@@ -2194,10 +2222,11 @@ namespace PckStudio.Controls
 
         private void contextMenuPCKEntries_Opening(object sender, System.ComponentModel.CancelEventArgs e)
         {
-            correctSkinDecimalsToolStripMenuItem.Visible = false;
+            fixSkinDecimalsToolStripMenuItem.Visible = false;
             generateMipMapTextureToolStripMenuItem1.Visible = false;
             setModelContainerFormatToolStripMenuItem.Visible = false;
             setSubPCKEndiannessToolStripMenuItem.Visible = false;
+            setSubPCKBOXVersionToolStripMenuItem.Visible = false;
             exportToolStripMenuItem.Visible = false;
             toolStripSeparator5.Visible = false;
             toolStripSeparator6.Visible = false;
@@ -2209,17 +2238,27 @@ namespace PckStudio.Controls
                 toolStripSeparator5.Visible = true;
                 toolStripSeparator6.Visible = true;
 
-                if (asset.Type == PckAssetType.SkinFile)
+                switch(asset.Type)
                 {
-                    correctSkinDecimalsToolStripMenuItem.Visible = true;
-                    exportToolStripMenuItem.Visible = true;
+                    case PckAssetType.SkinFile:
+                        fixSkinDecimalsToolStripMenuItem.Visible = true;
+                        exportToolStripMenuItem.Visible = true;
+                        break;
+                    case PckAssetType.TextureFile:
+                        generateMipMapTextureToolStripMenuItem1.Visible = true;
+                        break;
+                    case PckAssetType.ModelsFile:
+                        setModelContainerFormatToolStripMenuItem.Visible = true;
+                        break;
+                    case PckAssetType.SkinDataFile:
+                        setSubPCKBOXVersionToolStripMenuItem.Visible = true;
+                        setSubPCKEndiannessToolStripMenuItem.Visible = true;
+                        break;
+                    case PckAssetType.TexturePackInfoFile:
+                    case PckAssetType.AudioFile:
+                        setSubPCKEndiannessToolStripMenuItem.Visible = true;
+                        break;
                 }
-                if (asset.Type == PckAssetType.TextureFile)
-                    generateMipMapTextureToolStripMenuItem1.Visible = true;
-                if (asset.Type == PckAssetType.ModelsFile)
-                    setModelContainerFormatToolStripMenuItem.Visible = true;
-                if (asset.Type == PckAssetType.SkinDataFile || asset.Type == PckAssetType.TexturePackInfoFile || asset.Type == PckAssetType.AudioFile)
-                    setSubPCKEndiannessToolStripMenuItem.Visible = true;
             }
             else
             {
