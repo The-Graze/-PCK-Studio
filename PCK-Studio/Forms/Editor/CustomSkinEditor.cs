@@ -59,10 +59,11 @@ namespace PckStudio.Forms.Editor
         private void InitializeRenderSettings()
         {
             _settingsManager = Core.App.SettingsManager.CreateSettings();
-            _settingsManager.AddSetting("shouldAnimate"  , true , "Animate skin"                   , state => renderer3D1.Animate = state);
-            _settingsManager.AddSetting("lockMouse"      , true , "Lock mouse when paning/rotating", state => renderer3D1.LockMousePosition = state);
-            _settingsManager.AddSetting("showGuidelines" , false, "Show guidelines"                , state => renderer3D1.ShowGuideLines = state);
-            _settingsManager.AddSetting("showBoundingBox", false, "Show Bounding Box"              , state => renderer3D1.ShowBoundingBox = state);
+            _settingsManager.AddSetting("shouldAnimate"  , true , "Animate skin"                    , state => renderer3D1.Animate = state);
+            _settingsManager.AddSetting("lockMouse"      , true , "Lock mouse when panning/rotating", state => renderer3D1.LockMousePosition = state);
+            _settingsManager.AddSetting("showCape"       , true , "Render cape"                     , state => renderer3D1.RenderCape = state);
+            _settingsManager.AddSetting("showGuidelines" , false, "Show guidelines"                 , state => renderer3D1.ShowGuideLines = state);
+            _settingsManager.AddSetting("showBoundingBox", false, "Show Bounding Box"               , state => renderer3D1.ShowBoundingBox = state);
         }
 
         protected override void OnLoad(EventArgs e)

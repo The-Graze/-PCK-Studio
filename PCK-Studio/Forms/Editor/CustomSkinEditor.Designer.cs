@@ -275,6 +275,7 @@
             this.renderer3D1.MouseSensetivity = 0.01F;
             this.renderer3D1.Name = "renderer3D1";
             this.renderer3D1.RefreshRate = 60;
+            this.renderer3D1.RenderCape = true;
             this.renderer3D1.SelectedIndex = -1;
             this.renderer3D1.SelectedIndices = new int[] {
         -1};

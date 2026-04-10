@@ -115,6 +115,7 @@ namespace PckStudio.Rendering
         public bool ShowBoundingBox { get; set; }
         public bool ShowArmor { get; set; } = false;
         public bool Animate { get; set; } = true;
+        public bool RenderCape { get; set; } = true;
         public bool ShowGuideLines
         {
             get => guidelineMode != GuidelineMode.None;
@@ -921,7 +922,7 @@ namespace PckStudio.Rendering
                 RenderBodyPart(cubeShader, legRightMatrix, renderTransform, "LEG0", "PANTS0");
                 RenderBodyPart(cubeShader, legLeftMatrix, renderTransform, "LEG1", "PANTS1");
 
-                if (_capeImage is not null)
+                if (_capeImage is not null && RenderCape)
                 {
                     cubeShader.SetUniform2("TexSize", new Vector2(64, 32));
                     capeTexture.Bind();
