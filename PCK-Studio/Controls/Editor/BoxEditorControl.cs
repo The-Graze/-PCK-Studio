@@ -23,6 +23,8 @@ namespace PckStudio.Controls
         private SkinBOX result;
         private int boxVersion = 0;
 
+        private bool CancelBoxChanged = false;
+
         public BoxEditorControl(SkinBOX box, int xmlVersion)
             : this(xmlVersion)
         {
@@ -70,6 +72,8 @@ namespace PckStudio.Controls
                 throw new Exception("Failed to parse BOX value");
             }
 
+            // cancel box changed so the event doesn't trigger for this function
+            CancelBoxChanged = true;
             parentComboBox.SelectedItem = parentComboBox.Items[parentComboBox.Items.IndexOf(box.Type)];
             PosXUpDown.Value = (decimal)box.Pos.X;
             PosYUpDown.Value = (decimal)box.Pos.Y;
@@ -85,6 +89,7 @@ namespace PckStudio.Controls
             bootsCheckBox.Checked = (box.ArmorMaskFlags & 8) != 0;
             mirrorCheckBox.Checked = box.Mirror;
             inflationUpDown.Value = (decimal)box.Scale;
+            CancelBoxChanged = false;
         }
 
         public SkinBOX GetBOX()
@@ -110,15 +115,19 @@ namespace PckStudio.Controls
 
         private void HandleBoxChanged(object sender, EventArgs e)
         {
-            OnBoxChanged(EventArgs.Empty);
+            if(!CancelBoxChanged)
+                OnBoxChanged(EventArgs.Empty);
         }
 
         protected virtual void OnBoxChanged(EventArgs e)
         {
-            EventHandler handler = this.BoxChanged;
-            if (handler != null)
+            if (!CancelBoxChanged)
             {
-                handler(this, e);
+                EventHandler handler = this.BoxChanged;
+                if (handler != null)
+                {
+                    handler(this, e);
+                }
             }
         }
     }
