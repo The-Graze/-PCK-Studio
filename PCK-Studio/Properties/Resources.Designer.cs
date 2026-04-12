@@ -195,6 +195,16 @@ namespace PckStudio.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        public static System.Drawing.Bitmap CLASSIC_SKIN_ICON {
+            get {
+                object obj = ResourceManager.GetObject("CLASSIC_SKIN_ICON", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         public static System.Drawing.Bitmap classic_template {
             get {
                 object obj = ResourceManager.GetObject("classic_template", resourceCulture);
@@ -564,6 +574,16 @@ namespace PckStudio.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap MODERN_SKIN_ICON {
+            get {
+                object obj = ResourceManager.GetObject("MODERN SKIN ICON", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
         public static byte[] mss32 {
@@ -733,16 +753,6 @@ namespace PckStudio.Properties {
         public static System.Drawing.Bitmap Save {
             get {
                 object obj = ResourceManager.GetObject("Save", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        public static System.Drawing.Bitmap SKIN_ICON {
-            get {
-                object obj = ResourceManager.GetObject("SKIN_ICON", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -977,6 +987,16 @@ namespace PckStudio.Properties {
         public static string skyboxVertexShader {
             get {
                 return ResourceManager.GetString("skyboxVertexShader", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap SLIM_SKIN_ICON {
+            get {
+                object obj = ResourceManager.GetObject("SLIM SKIN ICON", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
             }
         }
         

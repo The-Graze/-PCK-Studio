@@ -44,7 +44,7 @@ namespace PckStudio.Forms.Features
             var imgList = new ImageList();
             imgList.ColorDepth = ColorDepth.Depth32Bit;
             imgList.ImageSize = new System.Drawing.Size(28, 28);
-            imgList.Images.Add(Resources.SKIN_ICON);
+            imgList.Images.Add(Resources.CLASSIC_SKIN_ICON);
             imgList.Images.Add(Resources.TEXTURE_ICON);
             DLCTreeView.ImageList = imgList;
             if (!TryApplyPermanentCemuConfig() &&

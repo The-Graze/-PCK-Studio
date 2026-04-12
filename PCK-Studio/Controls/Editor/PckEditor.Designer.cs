@@ -522,7 +522,7 @@ namespace PckStudio.Controls
             // 
             // skinToolStripMenuItem1
             // 
-            this.skinToolStripMenuItem1.Image = global::PckStudio.Properties.Resources.SKIN_ICON;
+            this.skinToolStripMenuItem1.Image = global::PckStudio.Properties.Resources.CLASSIC_SKIN_ICON;
             this.skinToolStripMenuItem1.Name = "skinToolStripMenuItem1";
             resources.ApplyResources(this.skinToolStripMenuItem1, "skinToolStripMenuItem1");
             // 

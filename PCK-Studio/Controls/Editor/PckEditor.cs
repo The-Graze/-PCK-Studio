@@ -109,11 +109,13 @@ namespace PckStudio.Controls
             imageList.Images.Add(Resources.GRF_ICON); // Icon for Game Rule files (*.grf)
             imageList.Images.Add(Resources.GRH_ICON); // Icon for Game Rule Header files (*.grh)
             imageList.Images.Add(Resources.INFO_ICON); // Icon for Info files (0)
-            imageList.Images.Add(Resources.SKIN_ICON); // Icon for Skin files (*.png)
+            imageList.Images.Add(Resources.CLASSIC_SKIN_ICON); // Icon for Skin files (*.png)
             imageList.Images.Add(Resources.CAPE_ICON); // Icon for Cape files (*.png)
             imageList.Images.Add(Resources.TEXTURE_ICON); // Icon for Texture files (*.png;*.tga)
             imageList.Images.Add(Resources.BEHAVIOURS_ICON); // Icon for Behaviour files (behaviours.bin)
             imageList.Images.Add(Resources.ENTITY_MATERIALS_ICON); // Icon for Entity Material files (entityMaterials.bin)
+            imageList.Images.Add(Resources.MODERN_SKIN_ICON); // Icon for Skin files with Modern ANIM flag (*.png)
+            imageList.Images.Add(Resources.SLIM_SKIN_ICON); // Icon for Skin files with Slim ANIM flag (*.png)
 
             _pckAssetTypeHandler = new Dictionary<PckAssetType, Action<PckAsset>>(15)
             {
@@ -459,6 +461,7 @@ namespace PckStudio.Controls
                 parameterValueTextBox.Text = ParameterTypeTextBox.Text = string.Empty;
                 _wasModified = true;
                 ReloadParameterTreeView();
+                SetFileType(PckAssetType.SkinFile); // just a dirty way to get the right icon in case the anim was changed
             }
         }
 
@@ -582,7 +585,7 @@ namespace PckStudio.Controls
             {
                 TreeNode node = BuildNodeTreeBySeperator(root, asset.Filename, '/');
                 node.Tag = asset;
-                int nodeIconId = GetNodeIconId(asset.Type);
+                int nodeIconId = GetNodeIconId(asset);
                 node.ImageIndex = nodeIconId;
                 node.SelectedImageIndex = nodeIconId;
             }
@@ -605,9 +608,26 @@ namespace PckStudio.Controls
             }
         }
 
-        private int GetNodeIconId(PckAssetType type)
+        private int GetSkinNodeIconId(int animValue)
         {
-            return type switch
+            SkinANIM anim = SkinANIM.FromValue(animValue);
+
+            if (anim.GetFlag(SkinAnimFlag.SLIM_MODEL))
+                return 18; // slim model icon
+            else if (anim.GetFlag(SkinAnimFlag.MODERN_WIDE_MODEL))
+                return 17; // modern model; slim gets priority just like in game
+
+            return 12; // classic skin model icon
+        }
+
+        private int GetNodeIconId(PckAsset asset)
+        {
+            int anim = 0;
+
+            if (asset.Type == PckAssetType.SkinFile)
+                anim = asset.GetSkin().Anim.ToValue();
+
+            return asset.Type switch
             {
                 PckAssetType.AudioFile           => 1,
                 PckAssetType.LocalisationFile    => 3,
@@ -618,7 +638,7 @@ namespace PckStudio.Controls
                 PckAssetType.GameRulesFile       => 9,
                 PckAssetType.GameRulesHeader     => 10,
                 PckAssetType.InfoFile            => 11,
-                PckAssetType.SkinFile            => 12,
+                PckAssetType.SkinFile            => GetSkinNodeIconId(anim),
                 PckAssetType.CapeFile            => 13,
                 PckAssetType.TextureFile         => 14,
                 PckAssetType.BehavioursFile      => 15,
@@ -874,7 +894,7 @@ namespace PckStudio.Controls
             {
                 Debug.WriteLine($"Setting {asset.Type} to {type}");
                 asset.Type = type;
-                int nodeIconId = GetNodeIconId(type);
+                int nodeIconId = GetNodeIconId(asset);
                 treeViewMain.SelectedNode.ImageIndex = nodeIconId;
                 treeViewMain.SelectedNode.SelectedImageIndex = nodeIconId;
             }
@@ -1867,6 +1887,7 @@ namespace PckStudio.Controls
                 asset.AddParameter(new KeyValuePair<string, string>("ANIM", gameFlags.ToString()));
 
             ReloadParameterTreeView();
+            SetFileType(PckAssetType.SkinFile); // just a dirty way to get the right icon in case the anim was changed
             _wasModified = true;
         }
 
