@@ -1752,6 +1752,41 @@ namespace PckStudio.Controls
                 ofd.Filter = $"{asset.Type} (*{fileExt}{extra_extensions})|*{fileExt}{extra_extensions}";
                 if (ofd.ShowDialog(this) == DialogResult.OK)
                 {
+                    byte[] fileData = File.ReadAllBytes(ofd.FileName);
+                    bool isSkin = asset.Type == PckAssetType.SkinFile;
+                    bool isCape = asset.Type == PckAssetType.CapeFile;
+
+                    if (Settings.Default.ValidateImageDimension && (isSkin || isCape))
+                    {
+                        try
+                        {
+                            Image texture = Image.FromStream(new MemoryStream(fileData));
+
+                            bool isEqualDimensions = texture.Width == texture.Height;
+                            bool isHalfHeight = texture.Height == (texture.Width / 2);
+
+                            Console.WriteLine($"{texture.Width} {texture.Height}");
+
+                            if (isSkin && !isEqualDimensions && !isHalfHeight)
+                            {
+                                MessageBox.Show("The selected image does not suit a skin texture.", "Invalid image dimensions.", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
+                            
+                            if (isCape && !isHalfHeight)
+                            {
+                                MessageBox.Show("The selected image does not suit a cape texture.", "Invalid image dimensions.", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                return;
+                            }
+                            texture.Dispose();
+                        }
+                        catch
+                        {
+                            MessageBox.Show("The selected file is not a valid image.", "Invalid image.", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            return;
+                        }
+                    }
+
                     string newFileExt = Path.GetExtension(ofd.FileName);
                     asset.SetData(File.ReadAllBytes(ofd.FileName));
                     asset.Filename = asset.Filename.Replace(fileExt, newFileExt);
