@@ -1,5 +1,4 @@
-﻿using DiscordRPC;
-using MetroFramework.Forms;
+﻿using MetroFramework.Forms;
 using OMI.Formats.Behaviour;
 using OMI.Formats.Color;
 using OMI.Formats.GameRule;
@@ -15,6 +14,7 @@ using OMI.Workers.Language;
 using OMI.Workers.Material;
 using OMI.Workers.Model;
 using OMI.Workers.Pck;
+using OpenTK;
 using PckStudio.Core;
 using PckStudio.Core.Deserializer;
 using PckStudio.Core.Extensions;
@@ -43,7 +43,7 @@ using System.Drawing.Drawing2D;
 using System.IO;
 using System.Linq;
 using System.Windows.Forms;
-using System.Windows.Forms.DataVisualization.Charting;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement;
 
 namespace PckStudio.Controls
 {
@@ -83,6 +83,30 @@ namespace PckStudio.Controls
             LittleEndianCheckBox.Visible = packInfo.AllowEndianSwap;
 
             treeViewMain.TreeViewNodeSorter = new PckNodeSorter();
+            treeViewMain.DrawMode = TreeViewDrawMode.OwnerDrawText;
+            treeViewMain.ImageList = new ImageList();
+            treeViewMain.ImageList.Images.Add(Resources.empty); // no image drawn to allow for custom drawing
+            int iconSize = 48;
+            treeViewMain.ImageList.ImageSize = new Size(iconSize, iconSize);
+            treeViewMain.DrawNode += (s, e) =>
+            {
+                e.DrawDefault = true;
+
+                Rectangle iconBounds = new Rectangle(
+                    e.Bounds.Left - iconSize - 2,
+                    e.Bounds.Top,
+                    iconSize,
+                    iconSize
+                );
+
+                Image customIcon = GetNodeIcon(e.Node.Tag is PckAsset asset ? asset : null);
+
+                if (customIcon != null)
+                {
+                    e.Graphics.InterpolationMode = InterpolationMode.HighQualityBicubic; // bicubic to make it look better when downscaled
+                    e.Graphics.DrawImage(customIcon, iconBounds);
+                }
+            };
 
             skinToolStripMenuItem1.Click += (sender, e) => SetFileType(PckAssetType.SkinFile);
             capeToolStripMenuItem.Click += (sender, e) => SetFileType(PckAssetType.CapeFile);
@@ -136,6 +160,29 @@ namespace PckStudio.Controls
             };
         }
 
+        private void TreeViewMain_DrawNode(object sender, DrawTreeNodeEventArgs e)
+        {
+            // If not selected, draw normally
+            if ((e.State & TreeNodeStates.Selected) == 0)
+            {
+                e.DrawDefault = true;
+                return;
+            }
+
+            // Draw background
+            e.Graphics.FillRectangle(SystemBrushes.Highlight, e.Bounds);
+
+            // Draw text
+            TextRenderer.DrawText(
+                e.Graphics,
+                e.Node.Text,
+                treeViewMain.Font,
+                e.Bounds,
+                SystemColors.HighlightText,
+                TextFormatFlags.GlyphOverhangPadding
+            );
+        }
+
         protected override void PreSave()
         {
             EditorValue.Endianness = LittleEndianCheckBox.Checked ? OMI.ByteOrder.LittleEndian : OMI.ByteOrder.BigEndian;
@@ -162,7 +209,7 @@ namespace PckStudio.Controls
 
         public override void UpdateView()
         {
-            BuildMainTreeView();
+            BuildMainTreeView(true);
         }
 
         private void HandleInnerPckFile(PckAsset asset)
@@ -578,24 +625,24 @@ namespace PckStudio.Controls
             return BuildNodeTreeBySeperator(subNode.Nodes, subPath, seperator);
         }
 
-        private void BuildPckTreeView(TreeNodeCollection root, PckFile pckFile)
+        private void BuildPckTreeView(TreeNodeCollection root, PckFile pckFile, bool resetNodes = false)
         {
             foreach (PckAsset asset in pckFile.GetAssets())
             {
                 TreeNode node = BuildNodeTreeBySeperator(root, asset.Filename, '/');
                 node.Tag = asset;
-                node.ImageKey = node.SelectedImageKey = GetNodeIconKey(asset);
+                node.ImageKey = node.SelectedImageKey = GetNodeIconKey(asset, resetNodes);
             }
         }
 
-        private void BuildMainTreeView()
+        private void BuildMainTreeView(bool resetNodes = false)
         {
             // In case the Rename function was just used and the selected node name no longer matches the file name
             string selectedNodeText = treeViewMain.SelectedNode is TreeNode node ? node.FullPath : string.Empty;
             previewPictureBox.Image = Resources.NoImageFound;
             treeParameters.Nodes.Clear();
             treeViewMain.Nodes.Clear();
-            BuildPckTreeView(treeViewMain.Nodes, EditorValue.File);
+            BuildPckTreeView(treeViewMain.Nodes, EditorValue.File, resetNodes);
             treeViewMain.Sort();
 
             TreeNode[] selectedNodes = treeViewMain.FindPath(selectedNodeText);
@@ -605,29 +652,165 @@ namespace PckStudio.Controls
             }
         }
 
-        private int GetSkinNodeIconId(int animValue)
+        private string GetDefaultSkinNodeIconKey(SkinANIM anim)
         {
-            SkinANIM anim = SkinANIM.FromValue(animValue);
-
             if (anim.GetFlag(SkinAnimFlag.SLIM_MODEL))
-                return 18; // slim model icon
+                return "slimSkinFileIcon";
             else if (anim.GetFlag(SkinAnimFlag.MODERN_WIDE_MODEL))
-                return 17; // modern model; slim gets priority just like in game
+                return "modernSkinFileIcon"; // slim gets priority just like in game
 
-            return 12; // classic skin model icon
+            return "classicSkinFileIcon"; // classic skin model icon
         }
 
-        private string GetNodeIconKey(PckAsset asset)
+        private string GetCapeNodeIconKey(PckAsset cape, bool reset)
         {
-            //int anim = 0;
 
-            //if (asset.Type == PckAssetType.SkinFile)
-            //    anim = asset.GetSkin().Anim.ToValue();
+            Image capeTexture = null;
+
+            try
+            {
+                capeTexture = cape.GetTexture();
+            }
+            catch
+            {
+                return "capeFileIcon"; // fallback if invalid skin file
+            }
+
+            string id = Path.GetFileNameWithoutExtension(cape.Filename);
+
+            if (imageList.Images.ContainsKey(id) && !reset)
+            {
+                return id;
+            }
+            else
+            {
+                Bitmap customIcon = new Bitmap(Resources.CUSTOM_SKIN_ICON.Width, Resources.CUSTOM_SKIN_ICON.Height);
+
+                float textureScaleX = capeTexture.Width / 64f;   // minecraft capes always have a width of 64
+                float textureScaleY = capeTexture.Height / 32f; // minecraft capes always have a height of 32
+
+                float width = 10;
+                float height = 16;
+                float depth = 1;
+
+                // this math is basically to ensure the face is stretched if the texture is improper
+                Rectangle faceRect = new Rectangle(
+                    (int)(depth * textureScaleX + depth * textureScaleX),
+                    (int)(depth * textureScaleY + depth * textureScaleY),
+                    (int)(width * textureScaleX),
+                    (int)(height * textureScaleY)
+                );
+
+                Image capeFace = capeTexture.GetArea(faceRect);
+
+                using (Graphics gfx = Graphics.FromImage(customIcon))
+                {
+                    gfx.InterpolationMode = InterpolationMode.NearestNeighbor;
+                    gfx.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                    gfx.SmoothingMode = SmoothingMode.None;
+
+                    gfx.Fill(new Rectangle(0, 0, customIcon.Width, customIcon.Height), Color.FromArgb(0xFF, 0x5D, 0x9C, 0xEC));
+
+                    gfx.DrawImage(capeFace, 56, 12, 145, 232); // position for the cape on the icon
+
+                    gfx.DrawImage(Resources.CUSTOM_SKIN_ICON, 0, 0);
+                }
+
+                // replace icon by removing and importing at index
+                int index = imageList.Images.IndexOfKey(id);
+
+                if (index != -1)
+                {
+                    imageList.Images.RemoveByKey(id);
+                    imageList.Images.Insert(index, id, customIcon);
+                }
+                else
+                    imageList.Images.Add(id, customIcon);
+
+                return id;
+            }
+        }
+
+        private string GetSkinNodeIconKey(Skin skin, bool reset)
+        {
+            if (skin == null)
+                return GetDefaultSkinNodeIconKey(SkinANIM.Empty);
+
+            string id = "dlcskin" + skin.Identifier.ToString();
+
+            if (imageList.Images.ContainsKey(id) && !reset)
+            {
+                return id;
+            }
+            else
+            {
+                int skinIconWidth = Resources.SKINS_ICON.Width;
+                int skinIconHeight = Resources.SKINS_ICON.Height;
+
+                Bitmap customIcon = new Bitmap(skinIconWidth, skinIconHeight);
+
+                using (Graphics gfx = Graphics.FromImage(customIcon))
+                {
+                    gfx.InterpolationMode = InterpolationMode.NearestNeighbor;
+                    gfx.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                    gfx.SmoothingMode = SmoothingMode.None;
+
+                    gfx.Fill(new Rectangle(0, 0, skinIconWidth, skinIconHeight), Color.FromArgb(0xFF, 0x5D, 0x9C, 0xEC));
+
+                    // get the bust crop for the image
+                    // this is handled externally to use the skin data to ensure skins are positioned in context of the default player head
+                    Image croppedPaperDoll = skin.DrawPaperDoll(xmlVersion: EditorValue.File.xmlVersion, bustCrop: true);
+
+                    skin.DrawPaperDoll(xmlVersion: EditorValue.File.xmlVersion).Save("C:\\Users\\MattN\\Pictures\\icontest\\" + skin.Identifier.Id.ToString() + ".png");
+
+                    gfx.DrawImage(croppedPaperDoll, 0, 0); // the crop bust is already the same dimensions as the skin icon
+
+                    gfx.DrawImage(Resources.CUSTOM_SKIN_ICON, 0, 0); // draw border on top
+
+                    customIcon.Save("C:\\Users\\MattN\\Pictures\\icontest\\" + skin.Identifier.Id.ToString() + "i.png");
+                }
+
+                // replace icon by removing and importing at index
+                int index = imageList.Images.IndexOfKey(id);
+
+                if (index != -1)
+                {
+                    imageList.Images.RemoveByKey(id);
+                    imageList.Images.Insert(index, id, customIcon);
+                }
+                else
+                    imageList.Images.Add(id, customIcon);
+            }
+
+            return id;
+        }
+
+        private Image GetNodeIcon(PckAsset asset = null)
+        {
+            if (asset == null)
+                return Resources.ZZFolder;
+
+            return imageList.Images[GetNodeIconKey(asset)];
+        }
+
+        private string GetNodeIconKey(PckAsset asset, bool reset = false)
+        {
+            Skin skin = null;
+
+            try
+            {
+                if (asset.Type == PckAssetType.SkinFile)
+                    skin = asset.GetSkin();
+            }
+            catch
+            {
+                skin = null;
+            }
 
             return asset.Type switch
             {
-                PckAssetType.SkinFile            => "classicSkinFileIcon", //GetSkinNodeIconId(anim),
-                PckAssetType.CapeFile            => "capeFileIcon",
+                PckAssetType.SkinFile            => GetSkinNodeIconKey(skin, reset),
+                PckAssetType.CapeFile            => GetCapeNodeIconKey(asset, reset),
                 PckAssetType.TextureFile         => "textureFileIcon",
                 PckAssetType.InfoFile            => "infoFileIcon",
                 PckAssetType.TexturePackInfoFile => "pckFileIcon",
@@ -892,7 +1075,7 @@ namespace PckStudio.Controls
                 Debug.WriteLine($"Setting {asset.Type} to {type}");
                 asset.Type = type;
                 TreeNode node = treeViewMain.SelectedNode;
-                node.ImageKey = node.SelectedImageKey = GetNodeIconKey(asset);
+                node.ImageKey = node.SelectedImageKey = GetNodeIconKey(asset, true);
             }
         }
 
@@ -1791,6 +1974,12 @@ namespace PckStudio.Controls
                     asset.SetData(File.ReadAllBytes(ofd.FileName));
                     asset.Filename = asset.Filename.Replace(fileExt, newFileExt);
                     _wasModified = true;
+
+                    if(asset.Type == PckAssetType.SkinFile || asset.Type == PckAssetType.CapeFile)
+                    {
+                        GetNodeIconKey(asset, true); // reset node icon
+                    }
+
                     BuildMainTreeView();
                 }
                 return;

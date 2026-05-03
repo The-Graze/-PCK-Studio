@@ -177,8 +177,6 @@ namespace PckStudio.Core.Extensions
                     .OrderBy(box => box.Scale)
                     .ToList();
 
-                // Minecraft skins are ordinarily 16 pixels wide and 32 pixels tall
-                // a padding of 4 has been added for fitting overlay parts
                 float canvasWidth = 0;
                 float canvasHeight = 0;
                 float canvasMinX = float.MaxValue;
