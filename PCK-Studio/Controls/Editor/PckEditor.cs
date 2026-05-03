@@ -765,13 +765,9 @@ namespace PckStudio.Controls
                     // this is handled externally to use the skin data to ensure skins are positioned in context of the default player head
                     Image croppedPaperDoll = skin.DrawPaperDoll(xmlVersion: EditorValue.File.xmlVersion, bustCrop: true);
 
-                    skin.DrawPaperDoll(xmlVersion: EditorValue.File.xmlVersion).Save("C:\\Users\\MattN\\Pictures\\icontest\\" + skin.Identifier.Id.ToString() + ".png");
-
                     gfx.DrawImage(croppedPaperDoll, 0, 0); // the crop bust is already the same dimensions as the skin icon
 
                     gfx.DrawImage(Resources.CUSTOM_SKIN_ICON, 0, 0); // draw border on top
-
-                    customIcon.Save("C:\\Users\\MattN\\Pictures\\icontest\\" + skin.Identifier.Id.ToString() + "i.png");
                 }
 
                 // replace icon by removing and importing at index
