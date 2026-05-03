@@ -664,6 +664,8 @@ namespace PckStudio.Controls
 
         private string GetCapeNodeIconKey(PckAsset cape, bool reset)
         {
+            if (!Settings.Default.UseCustomCapeIcons)
+                return "capeFileIcon"; // default cape icon
 
             Image capeTexture = null;
 
@@ -735,6 +737,8 @@ namespace PckStudio.Controls
         {
             if (skin == null)
                 return GetDefaultSkinNodeIconKey(SkinANIM.Empty);
+            else if (!Settings.Default.UseCustomSkinIcons)
+                return GetDefaultSkinNodeIconKey(skin.Anim);
 
             string id = "dlcskin" + skin.Identifier.ToString();
 

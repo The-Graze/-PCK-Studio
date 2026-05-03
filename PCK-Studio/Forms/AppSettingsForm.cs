@@ -26,6 +26,8 @@ namespace PckStudio.Forms
                 ["LoadSubPcks"] = "Load Sub Pcks",
                 ["UsePrerelease"] = "Use Prerelease",
                 ["ValidateImageDimension"] = "Validate skin dimension",
+                ["UseCustomSkinIcons"] = "Use custom icons for skins",
+                ["UseCustomCapeIcons"] = "Use custom icons for capes",
             })
         {
         }
