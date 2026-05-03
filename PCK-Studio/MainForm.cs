@@ -610,6 +610,8 @@ namespace PckStudio
                 if (TryGetCurrentEditor(out IEditor<PackInfo> editor) && editor.EditorValue.File.xmlVersion != version)
                 {
                     editor.EditorValue.File.xmlVersion = version;
+                    if(Settings.Default.UseCustomSkinIcons || Settings.Default.UseCustomCapeIcons) 
+                        editor.UpdateView(); // reset all custom node icons
                     Console.WriteLine($"New XMLVersion: {editor.TitleName} {editor.EditorValue.File.xmlVersion}");
                 }
             }
